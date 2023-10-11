@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fetch, Async, Callback Assignment</title>
+    <style>
+        #responseText {
+            width: 50%;
+            margin: 2em auto;
+        }
+
+        button {
+            padding: 1em;
+            background-color: maroon;
+            border-radius: 5px;
+            border: 0;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <button id="btn">Download Video</button>
+    <button id="playBtn">Play</button>
+    <div id="responseText"></div>
+    <script>
+        const downloadBtn = document.querySelector('#btn');
+        const playBtn = document.querySelector('#playBtn');
+        const resText = document.querySelector('#responseText');
+        let videoUrl;
+
+        downloadBtn.addEventListener('click', () => {
+            videoUrl = "https://static.videezy.com/system/resources/previews/000/008/443/original/Dark_Haired_Girl_confused_-what--_2.mp4";
+            downloadVideoCallback(videoUrl, (error) => {
+                if (error) {
+                    resText.innerHTML = `<h2>Error downloading video: ${error}</h2>`;
+                } else {
+                    resText.innerHTML = `<h2>Video Downloaded Successfully</h2>`;
+                    playBtn.style.display = 'inline-block'; 
+                }
+            });
+        });
+
+        playBtn.addEventListener('click', () => {
+            if (videoUrl) {
+                playVideo(videoUrl);
+            } else {
+                resText.innerHTML = `<h2>Please download the video first.</h2>`;
+            }
+        });
+
+        function downloadVideoCallback(url, callback) {
+            fetch(url)
+                .then(response => response.blob())
+                .then(blob => {
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = "video.mp4";
+                    a.click();
+                    URL.revokeObjectURL(url);
+                    callback(null);
+                })
+                .catch(error => callback(error));
+        }
+
+        function playVideo(url) {
+            const videoPlayer = document.createElement('video');
+            videoPlayer.src = url;
+            videoPlayer.controls = true;
+            videoPlayer.style.width = '100%';
+            resText.innerHTML = ''; // Clear previous messages
+            resText.appendChild(videoPlayer);
+        }
+    </script>
+</body>
+</html>
